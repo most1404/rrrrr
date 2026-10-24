@@ -1,0 +1,8 @@
+{
+  "name": "Asha Scanner",
+  "description": "Cloudflare clean-IP scanner and anti-censorship toolkit for restricted networks. Finds fast, reliable CF edges for VLESS/Trojan proxy configs with live oscilloscope, latency grading, and network diagnostics.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

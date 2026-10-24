@@ -1,0 +1,13 @@
+*.iml
+.gradle
+.idea
+/local.properties
+.idea/
+.mimosa/
+*.idsig
+local.properties
+build/
+.DS_Store
+*.jks
+.zcodeignore
+.kotlin/

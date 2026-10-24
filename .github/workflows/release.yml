@@ -1,0 +1,74 @@
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v0.3-manual'
+
+jobs:
+  build:
+    name: Build and Release APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Decode Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.SIGNING_KEY }}
+        run: |
+          if [ -n "$ENCODED_STRING" ]; then
+            echo "$ENCODED_STRING" | base64 --decode > app/release-key-ci.jks
+          fi
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Release APK
+        env:
+          KEYSTORE_PATH: "release-key-ci.jks"
+          KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: Rename APK
+        run: |
+          cd app/build/outputs/apk/release
+          cp app-arm64-v8a-release.apk asha_scanner_arm64-v8a.apk 2>/dev/null || cp app-arm64-v8a-release-unsigned.apk asha_scanner_arm64-v8a.apk || true
+          cp app-armeabi-v7a-release.apk asha_scanner_armeabi-v7a.apk 2>/dev/null || cp app-armeabi-v7a-release-unsigned.apk asha_scanner_armeabi-v7a.apk || true
+          cp app-universal-release.apk asha_scanner_universal.apk 2>/dev/null || cp app-universal-release-unsigned.apk asha_scanner_universal.apk || true
+          cp asha_scanner_arm64-v8a.apk asha_scanner.apk || true
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          files: |
+            app/build/outputs/apk/release/asha_scanner.apk
+            app/build/outputs/apk/release/asha_scanner_arm64-v8a.apk
+            app/build/outputs/apk/release/asha_scanner_armeabi-v7a.apk
+            app/build/outputs/apk/release/asha_scanner_universal.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

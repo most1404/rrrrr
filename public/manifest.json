@@ -1,0 +1,17 @@
+{
+  "name": "Asha Scanner - Cloudflare Clean IP Scanner",
+  "short_name": "Asha Scanner",
+  "description": "Cloudflare clean-IP scanner and anti-censorship toolkit for restricted networks.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0D12",
+  "theme_color": "#00FF99",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
